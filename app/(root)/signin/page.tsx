@@ -2,10 +2,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { SignUpAction } from "./_actions";
-import { useActionState, useEffect } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import {signupSchema, SignupSchema} from "./lib/types";
+import { signinSchema, SigninSchema } from "./lib/types";
+import { signIn } from "next-auth/react";
+
 import {
   Form,
   FormControl,
@@ -17,54 +18,59 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-
-
-
-const SignupPage = () => {
-  const [state, formAction , isPending] = useActionState(SignUpAction, null);
+const SigninPage = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const form = useForm<SignupSchema>({
-    resolver: zodResolver(signupSchema),
+  const [isPending, setIsPending] = useState(false);
+
+  const form = useForm<SigninSchema>({
+    resolver: zodResolver(signinSchema),
     mode: "onChange", // Validate on change
     reValidateMode: "onChange", // Revalidate on change
     defaultValues: {
-      name: "",
       email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
-  useEffect(() => {
-    if (state?.message) {
-      console.log(state);
+  // The handleSignIn function now accepts the form data
+  const handleSignIn = async (data: SigninSchema) => {
+    setIsPending(true); // Indicate that the form is submitting
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast({
+          description: "Invalid credentials, please try again.",
+          variant: "destructive",
+        });
+      } else {
+        router.push("/");
+        // Redirect or handle successful login here
+      }
+    } catch (error) {
       toast({
-        description: state.message,
+        description: "An error occurred during sign in.",
         variant: "destructive",
       });
+    } finally {
+      setIsPending(false); // Reset the pending state
     }
-  }, [state,toast]);
+  };
+
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="w-full max-w-md p-4 border rounded-lg shadow-sm">
-        <h1 className="text-xl font-bold mb-4 text-center">Sign Up</h1>
+        <h1 className="text-xl font-bold mb-4 text-center">Sign In</h1>
         <Form {...form}>
-          <form action={formAction} className="space-y-4">
-            {/* Name Field */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form
+            onSubmit={form.handleSubmit(handleSignIn)}
+            className="space-y-4"
+          >
             {/* Email Field */}
             <FormField
               control={form.control}
@@ -97,27 +103,9 @@ const SignupPage = () => {
                 </FormItem>
               )}
             />
-            {/* Confirm Password Field */}
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Your password"
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             {/* Submit Button */}
             <Button disabled={isPending} type="submit" className="w-full">
-            {isPending ? "Submitting..." : "Sign Up"}
+              {isPending ? "Submitting..." : "Sign In"}
             </Button>
           </form>
         </Form>
@@ -126,4 +114,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default SigninPage;

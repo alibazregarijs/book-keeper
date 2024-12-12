@@ -17,7 +17,7 @@ const signupSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords must match.",
-  });
+  }); 
 
 export async function SignUpAction(prevState: any, formData: FormData) {
   const data = Object.fromEntries(formData.entries());
