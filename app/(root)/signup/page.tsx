@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { SignUpAction } from "./_actions";
 import { useActionState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import * as z from "zod";
+import {signupSchema, SignupSchema} from "./types";
 import {
   Form,
   FormControl,
@@ -18,22 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-// Define a Zod schema for form validation
-const signupSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters."),
-    email: z.string().email("Invalid email address."),
-    password: z.string().min(6, "Password must be at least 6 characters."),
-    confirmPassword: z
-      .string()
-      .min(6, "Password must be at least 6 characters."),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords must match.",
-  });
 
-type SignupSchema = z.infer<typeof signupSchema>;
+
 
 const SignupPage = () => {
   const [state, formAction , isPending] = useActionState(SignUpAction, null);
