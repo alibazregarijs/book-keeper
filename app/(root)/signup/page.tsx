@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { SignUpAction } from "./_actions";
 import { useActionState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import {signupSchema, SignupSchema} from "./lib/types";
+import { signupSchema, SignupSchema } from "./lib/types";
 import {
   Form,
   FormControl,
@@ -17,12 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { fromJSON } from "postcss";
-
-
-
+import Link from "next/link";
 
 const SignupPage = () => {
-  const [state, formAction , isPending] = useActionState(SignUpAction, null);
+  const [state, formAction, isPending] = useActionState(SignUpAction, null);
   const router = useRouter();
   const { toast } = useToast();
   const form = useForm<SignupSchema>({
@@ -44,7 +42,7 @@ const SignupPage = () => {
         variant: "destructive",
       });
     }
-  }, [state,toast]);
+  }, [state, toast]);
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="w-full max-w-md p-4 border rounded-lg shadow-sm">
@@ -116,9 +114,16 @@ const SignupPage = () => {
               )}
             />
             {/* Submit Button */}
-            <Button disabled={!form.formState.isValid || isPending} type="submit" className="w-full">
-            {isPending ? "Submitting..." : "Sign Up"}
+            <Button
+              disabled={!form.formState.isValid || isPending}
+              type="submit"
+              className="w-full"
+            >
+              {isPending ? "Submitting..." : "Sign Up"}
             </Button>
+            <div>
+              <Link className="text-blue-500 underline" href="/signin">Signin</Link>
+            </div>
           </form>
         </Form>
       </div>

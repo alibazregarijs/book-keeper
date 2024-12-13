@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { signinSchema, SigninSchema } from "./lib/types";
 import { signIn } from "next-auth/react";
-
+import Link from "next/link";
 import {
   Form,
   FormControl,
@@ -104,9 +104,18 @@ const SigninPage = () => {
               )}
             />
             {/* Submit Button */}
-            <Button disabled={isPending} type="submit" className="w-full">
+            <Button
+              disabled={isPending || !form.formState.isValid}
+              type="submit"
+              className="w-full"
+            >
               {isPending ? "Submitting..." : "Sign In"}
             </Button>
+            <div>
+              <Link className="text-blue-500 underline" href="/signup">
+                Signup
+              </Link>
+            </div>
           </form>
         </Form>
       </div>
