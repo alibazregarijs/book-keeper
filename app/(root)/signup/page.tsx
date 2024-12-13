@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { fromJSON } from "postcss";
 
 
 
@@ -38,7 +39,6 @@ const SignupPage = () => {
 
   useEffect(() => {
     if (state?.message) {
-      console.log(state);
       toast({
         description: state.message,
         variant: "destructive",
@@ -116,7 +116,7 @@ const SignupPage = () => {
               )}
             />
             {/* Submit Button */}
-            <Button disabled={isPending} type="submit" className="w-full">
+            <Button disabled={!form.formState.isValid || isPending} type="submit" className="w-full">
             {isPending ? "Submitting..." : "Sign Up"}
             </Button>
           </form>

@@ -1,7 +1,8 @@
 "use server";
-
+import { Redirect } from "next";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
+import { redirect } from "next/navigation";
 
 const prisma = new PrismaClient();
 
@@ -60,10 +61,7 @@ export async function SignUpAction(prevState: any, formData: FormData) {
       },
     });
 
-    return {
-      success: true,
-      user: newUser,
-    };
+    
   } catch (error) {
     console.error(error);
     return {
@@ -71,4 +69,5 @@ export async function SignUpAction(prevState: any, formData: FormData) {
       message: "Something went wrong. Please try again later.",
     };
   }
+  redirect("/signin");
 }
