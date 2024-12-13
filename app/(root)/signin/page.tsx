@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { signinSchema, SigninSchema } from "./lib/types";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Form,
   FormControl,
@@ -119,6 +120,7 @@ const SigninPage = () => {
           </form>
         </Form>
       </div>
+     
     </div>
   );
 };

@@ -1,10 +1,19 @@
-import React from 'react'
+import React from "react";
 
-const page = () => {
+import { Navbar } from "@/components/navbar/Navbar";
+
+const page = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>;
+}) => {
+  const query = (await searchParams).query;
+
   return (
-    <div>page</div>
-  )
-}
+    <div>
+      <Navbar query={query} />
+    </div>
+  );
+};
 
-export default page
-
+export default page;

@@ -11,6 +11,7 @@ const signupSchema = z
     name: z.string().min(2, "Name must be at least 2 characters."),
     email: z.string().email("Invalid email address."),
     password: z.string().min(6, "Password must be at least 6 characters."),
+    avatar: z.string().min(1, "Avatar is required"),
     confirmPassword: z
       .string()
       .min(6, "Password must be at least 6 characters."),
@@ -21,7 +22,9 @@ const signupSchema = z
   }); 
 
 export async function SignUpAction(prevState: any, formData: FormData) {
+
   const data = Object.fromEntries(formData.entries());
+
   const parsedData = signupSchema.safeParse(data);
 
   if (!parsedData.success) {
@@ -33,7 +36,7 @@ export async function SignUpAction(prevState: any, formData: FormData) {
     };
   }
 
-  const { name, email, password } = parsedData.data;
+  const { name, email, password , avatar } = parsedData.data;
 
   try {
     // Check if the email already exists
@@ -57,6 +60,7 @@ export async function SignUpAction(prevState: any, formData: FormData) {
       data: {
         name,
         email,
+        avatar,
         password: hashedPassword,
       },
     });
