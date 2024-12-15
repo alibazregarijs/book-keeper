@@ -7,6 +7,11 @@ import { NavLink } from "./CustomeNavLink";
 export const Navbar = async ({ query }: { query?: string }) => {
   const session = await getServerSession();
 
+  if (!session) {
+    return (
+      <div className="flex justify-between items-center m-2"></div>
+    )
+  }
   return (
     <div className="flex justify-between items-center m-2">
       <div>

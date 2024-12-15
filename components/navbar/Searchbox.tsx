@@ -21,7 +21,7 @@ export const Searchbox = ({ query }: { query?: string }) => {
         <div className="absolute inset-y-0 left-3 flex items-center">
           <Button className="hidden" id="btnSubmit" type="submit"></Button>
           <label htmlFor="btnSubmit" className="cursor-pointer">
-            <SearchNormal1 size="20" color="#000000" /> 
+            <SearchNormal1 size="20" color="#fff" /> 
           </label>
         </div>
         {query && <SearchResetForm />}

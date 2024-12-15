@@ -1,6 +1,7 @@
 import React from "react";
-
 import { Navbar } from "@/components/navbar/Navbar";
+import Hero from "@/components/hero/Hero";
+import "@/app/(root)/globals.css";
 
 const page = async ({
   searchParams,
@@ -11,7 +12,8 @@ const page = async ({
 
   return (
     <div>
-     
+      <Navbar query={query} />
+      <Hero/>
     </div>
   );
 };
