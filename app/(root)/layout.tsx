@@ -5,6 +5,7 @@ import { Navbar } from "@/components/navbar/Navbar";
 import "./globals.css";
 import Hero from "@/components/hero/Hero";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,7 +33,10 @@ export default function RootLayout({
       >
         <Toaster />
 
-        <main>{children}</main>
+        <main>
+          
+          {children}
+          </main>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar/Navbar";
-
+import ClientSessionProvider from "../signup/ClientSessionProvider";
 import Hero from "@/components/hero/Hero";
 
 export const metadata: Metadata = {
@@ -18,12 +18,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={` antialiased`}>
-        <Toaster />
-        <header>
-          <Navbar />
-        </header>
-        <Hero />
-        <main>{children}</main>
+        <ClientSessionProvider>
+          <Toaster />
+          <header>
+            <Navbar />
+          </header>
+          <Hero />
+          <main>{children}</main>
+        </ClientSessionProvider>
       </body>
     </html>
   );

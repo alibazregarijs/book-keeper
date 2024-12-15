@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 import { Button } from "../ui/button";
+import {AddBookModal} from "./AddBookModal"
 
 interface NavLinkProps {
   href: string;

@@ -4,6 +4,8 @@ import { Searchbox } from "./Searchbox";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { NavLink } from "./CustomeNavLink";
+import { AddBookModal } from "./AddBookModal";
+
 export const Navbar = async ({ query }: { query?: string }) => {
   const session = await getServerSession();
 
@@ -32,9 +34,7 @@ export const Navbar = async ({ query }: { query?: string }) => {
         <NavLink href="/explore">
           Explore
         </NavLink>
-        <NavLink href="/book/add">
-          Add Book
-        </NavLink>
+        <AddBookModal/>
       </div>
     </div>
   );
