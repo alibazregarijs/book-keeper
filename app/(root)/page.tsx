@@ -16,7 +16,6 @@ const page = async ({
     <div>
       <ClientSessionProvider>
         <Hero query={query} />
-        <Book />
       </ClientSessionProvider>
     </div>
   );

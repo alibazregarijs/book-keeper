@@ -101,7 +101,7 @@ export function AddBookModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Add Book</Button>
+        <Button>Add Book</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form encType="multipart/form-data" onSubmit={handleSubmit}>
