@@ -3,6 +3,7 @@ import { Navbar } from "@/components/navbar/Navbar";
 import Hero from "@/components/hero/Hero";
 import "@/app/(root)/globals.css";
 import ClientSessionProvider from "./signup/ClientSessionProvider";
+import Book from "./book/page";
 
 const page = async ({
   searchParams,
@@ -14,8 +15,8 @@ const page = async ({
   return (
     <div>
       <ClientSessionProvider>
-        <Navbar query={query} />
-        <Hero />
+        <Hero query={query} />
+        <Book />
       </ClientSessionProvider>
     </div>
   );

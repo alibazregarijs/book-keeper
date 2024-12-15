@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
-const page = () => {
-  return (
-    <div>book</div>
-  )
-}
+const Book = () => {
+  return <div className="">book</div>;
+};
 
-export default page
+export default Book;

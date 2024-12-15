@@ -123,6 +123,7 @@ export function AddBookModal() {
                 onChange={handleOnChange}
                 className="col-span-3"
                 placeholder="Book Title"
+                required
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -133,6 +134,7 @@ export function AddBookModal() {
                 id="description"
                 name="description"
                 value={formData.description}
+                required
                 onChange={handleOnChange}
                 className="col-span-3"
                 placeholder="Description of the book"
@@ -142,7 +144,7 @@ export function AddBookModal() {
               <Label htmlFor="genre" className="text-right">
                 Genre
               </Label>
-              <Select value={formData.genre} onValueChange={handleGenreChange}>
+              <Select value={formData.genre} required onValueChange={handleGenreChange}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select Genre" />
                 </SelectTrigger>
@@ -160,7 +162,9 @@ export function AddBookModal() {
               <Input
                 id="price"
                 name="price"
+                required
                 type="number"
+                min={0}
                 value={formData.price}
                 onChange={handleOnChange}
                 className="col-span-3"
@@ -174,6 +178,8 @@ export function AddBookModal() {
               <Input
                 id="pageCount"
                 name="pageCount"
+                min={0}
+                required
                 type="number"
                 value={formData.pageCount}
                 onChange={handleOnChange}
@@ -189,6 +195,7 @@ export function AddBookModal() {
                 id="image"
                 name="image"
                 type="file"
+                required
                 accept="image/*"
                 onChange={(e) => setImage(e.target.files?.[0])}
                 value={formData.imageUrl}
