@@ -198,7 +198,6 @@ export function AddBookModal() {
                 required
                 accept="image/*"
                 onChange={(e) => setImage(e.target.files?.[0])}
-                value={formData.imageUrl}
                 className="col-span-3"
                 placeholder="Price of the book"
               />
