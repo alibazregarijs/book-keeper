@@ -5,14 +5,12 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { NavLink } from "./CustomeNavLink";
 import { AddBookModal } from "./AddBookModal";
+import { redirect } from "next/navigation";
 
 export const Navbar = async ({ query }: { query?: string }) => {
   const session = await getServerSession();
-
   if (!session) {
-    return (
-      <div className="flex justify-between items-center m-2"></div>
-    )
+    redirect("/signin")
   }
   return (
     <div className="flex justify-between items-center m-2">

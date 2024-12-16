@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -38,7 +39,7 @@ declare module "next-auth" {
 
 export function AddBookModal() {
   const { data: session } = useSession();
-
+  const { toast } = useToast();
   const userId = session?.user?.id;
 
   const [image, setImage] = useState<File>();
@@ -90,7 +91,11 @@ export function AddBookModal() {
     try {
       dataToSend.append("image", (image as File) || "");
       dataToSend.append("userId", userId as string);
-      await AddBookAction(dataToSend);
+      const res = await AddBookAction(dataToSend);
+      toast({
+        description: res.message,
+        className:"bg-green-500 text-white border-green-500",
+      });
       resetForm();
       console.log("Book added successfully");
     } catch (error) {

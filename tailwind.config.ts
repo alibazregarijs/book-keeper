@@ -10,6 +10,7 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			myBlack:"#151515",
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
