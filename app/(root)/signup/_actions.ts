@@ -38,6 +38,8 @@ export async function SignUpAction(prevState: any, formData: FormData) {
 
   const { name, email, password , avatar } = parsedData.data;
 
+  console.log(avatar,"avatar")
+
   try {
     // Check if the email already exists
     const existingUser = await prisma.user.findUnique({

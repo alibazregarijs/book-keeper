@@ -17,7 +17,7 @@ const ListBook = ({ books }: { books: BookProps[] }) => {
           breakpointCols={breakpointColumnsObj}
           className="flex animate-slide-fwd gap-10 relative mx-4"
         >
-          {books?.map((book) => <Book key={book.id} book={book} />)}
+          {books?.map((book,index) => <Book key={index} book={book}  />)}
         </Masonry>
       );
 };

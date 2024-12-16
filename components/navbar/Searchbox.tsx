@@ -1,15 +1,18 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import Form from "next/form";
-
+import { headers } from "next/headers";
 import { SearchNormal1 } from "iconsax-react";
 import { Button } from "../ui/button";
 
 import SearchResetForm from "./SearchResetForm";
-export const Searchbox = ({ query }: { query?: string }) => {
+export const Searchbox = async({ query }: { query?: string }) => {
+  const headersList = await headers(); // Fetch headers on the server
+  const currentUrl = headersList.get("referer") || "";
+  console.log(currentUrl,"current")
   return (
     <div className="relative w-full">
-      <Form action="/" scroll={false} id="search-form">
+      <Form action={currentUrl} scroll={false} id="search-form">
         <Input
           id="search-input"
           placeholder="Search Books"

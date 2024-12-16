@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { fromJSON } from "postcss";
 import Link from "next/link";
 
 const SignupPage = () => {
@@ -40,10 +39,9 @@ const SignupPage = () => {
   });
 
   function getAvatarSrc(number: number) {
-    setAvatar({ src: avatars[number].src, number });
-
-    form.setValue("avatar", avatars[number].src);
-    form.setValue("avatar", avatars[number].src, { shouldValidate: true });
+    setAvatar({ src: avatars[number-1].src, number });
+    form.setValue("avatar", avatars[number-1].src);
+    form.setValue("avatar", avatars[number-1].src, { shouldValidate: true });
   }
 
   useEffect(() => {

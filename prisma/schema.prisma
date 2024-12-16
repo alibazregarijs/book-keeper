@@ -8,13 +8,15 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
   avatar    String
-  email     String   @unique
+  email     String    @unique
   password  String
-  createdAt DateTime @default(now())
-   books     Book[]   // One-to-Many relationship: A user can have many books
+  createdAt DateTime  @default(now())
+  books     Book[]    // One-to-Many relationship: A user can have many books
+  bookLikes BookLike[] // Added the reverse relation for BookLike
+  savedBooks SaveBook[] // Reverse relation for SaveBook
 }
 
 model Book {
@@ -22,7 +24,31 @@ model Book {
   title       String
   genre       String
   pageCount   Int
+  description String
   userId      Int      // Foreign key to associate with User
   user        User     @relation(fields: [userId], references: [id]) // Relation setup
-  imageUrl    String?
+  imageUrl    String
+  likes       BookLike[] // One-to-Many relationship: A book can have many likes
+  savedBy     SaveBook[] // Reverse relation for SaveBook
+}
+
+model BookLike {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // Foreign key to associate with User
+  user        User     @relation(fields: [userId], references: [id]) // Relation setup
+  bookId      Int      // Foreign key to associate with Book
+  book        Book     @relation(fields: [bookId], references: [id]) // Added the reverse relation to Book
+  countOfLike Int
+  isLiked     Boolean  @default(false)
+  @@unique([userId, bookId])
+}
+
+model SaveBook {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // Foreign key to associate with User
+  user        User     @relation(fields: [userId], references: [id]) // Relation setup
+  bookId      Int      // Foreign key to associate with Book
+  book        Book     @relation(fields: [bookId], references: [id]) // Added the reverse relation to Book
+  isSaved     Boolean  @default(false)
+  @@unique([userId, bookId])
 }

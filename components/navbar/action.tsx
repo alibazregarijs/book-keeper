@@ -12,6 +12,7 @@ export async function AddBookAction(formData: FormData):Promise<{ message: strin
 
   const title = formData.get("title") as string;
   const genre = formData.get("genre") as string;
+  const description = formData.get("description") as string;
   const pageCount = parseInt(formData.get("pageCount") as string, 10);
   const userId = parseInt(formData.get("userId") as string, 10);
   const image = formData.get("image") as File | null;
@@ -55,6 +56,7 @@ export async function AddBookAction(formData: FormData):Promise<{ message: strin
         title,
         genre,
         pageCount,
+        description,
         userId,
         imageUrl: `/uploads/${fileName}`,
       },
