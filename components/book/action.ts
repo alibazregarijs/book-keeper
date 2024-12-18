@@ -67,3 +67,61 @@ export async function saveBookAction({
 
   return saveBookRecord;
 }
+
+export async function IncreaseViews({
+  bookId,
+  userId,
+}: {
+  bookId: number;
+  userId: number;
+}) {
+  try {
+    // Check if the user has already viewed the book
+    const existingView = await prisma.bookViews.findUnique({
+      where: {
+        userId_bookId: {
+          userId,
+          bookId,
+        },
+      },
+    });
+
+    // If no existing view, create a new record
+    if (!existingView) {
+      const newView = await prisma.bookViews.create({
+        data: {
+          userId,
+          bookId,
+          views: 1, // Initialize with 1 view
+        },
+      });
+      return newView;
+    }
+
+    // If a view already exists, do nothing
+    return existingView;
+  } catch (error) {
+    console.error("Error saving unique page view:", error);
+    throw new Error("Failed to save unique page view");
+  }
+
+}
+
+
+export async function getTotalViews(bookId: number): Promise<number> {
+  try {
+    const totalViews = await prisma.bookViews.aggregate({
+      _sum: {
+        views: true, // Specify the field to sum
+      },
+      where: {
+        bookId, // Filter by the book ID
+      },
+    });
+
+    return totalViews._sum.views || 0; // Return the total views, defaulting to 0 if null
+  } catch (error) {
+    console.error("Error fetching total views:", error);
+    throw new Error("Failed to fetch total views");
+  }
+}

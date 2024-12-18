@@ -17,6 +17,7 @@ model User {
   books     Book[]    // One-to-Many relationship: A user can have many books
   bookLikes BookLike[] // Added the reverse relation for BookLike
   savedBooks SaveBook[] // Reverse relation for SaveBook
+  bookViews BookViews[] // Reverse relation for BookViews
 }
 
 model Book {
@@ -30,6 +31,7 @@ model Book {
   imageUrl    String
   likes       BookLike[] // One-to-Many relationship: A book can have many likes
   savedBy     SaveBook[] // Reverse relation for SaveBook
+  bookViews   BookViews[] // Reverse relation for BookViews
 }
 
 model BookLike {
@@ -50,5 +52,15 @@ model SaveBook {
   bookId      Int      // Foreign key to associate with Book
   book        Book     @relation(fields: [bookId], references: [id]) // Added the reverse relation to Book
   isSaved     Boolean  @default(false)
+  @@unique([userId, bookId])
+}
+
+model BookViews {
+  id          Int      @id @default(autoincrement())
+  userId      Int      // Foreign key to associate with User
+  user        User     @relation(fields: [userId], references: [id]) // Relation setup
+  bookId      Int      // Foreign key to associate with Book
+  book        Book     @relation(fields: [bookId], references: [id]) // Added the reverse relation to Book
+  views       Int
   @@unique([userId, bookId])
 }

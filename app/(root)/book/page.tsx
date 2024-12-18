@@ -10,24 +10,35 @@ const Page = async () => {
 
   const books = await prisma.book.findMany({
     include: {
-      likes: {
-        where: {
-          userId: Number(userId),
-        },
-      },
-      savedBy: {
-        where: {
-          userId: Number(userId),
-        },
-      },
+      likes: true,
+      savedBy: true,
     },
   });
+
+  const booksWithViews = await Promise.all(
+    books.map(async (book) => {
+      // For each book, get the sum of its views
+      const views = await prisma.bookViews.aggregate({
+        _sum: {
+          views: true, // Assuming 'views' is the column representing the number of views
+        },
+        where: {
+          bookId: book.id, // Filter the views by the specific book
+        },
+      });
+
+      return {
+        ...book,
+        totalViews: views._sum.views || 0, // Include the total views in the book data
+      };
+    })
+  );
 
   // Pass the fetched books as a prop to the client-side component
   return (
     <div>
       <Navbar />
-      <ClientBooks books={books as any} />
+      <ClientBooks books={booksWithViews as any} />
     </div>
   );
 };

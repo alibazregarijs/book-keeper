@@ -44,6 +44,16 @@ CREATE TABLE "SaveBook" (
     CONSTRAINT "SaveBook_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "BookViews" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "bookId" INTEGER NOT NULL,
+    "views" INTEGER NOT NULL,
+
+    CONSTRAINT "BookViews_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -52,6 +62,9 @@ CREATE UNIQUE INDEX "BookLike_userId_bookId_key" ON "BookLike"("userId", "bookId
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SaveBook_userId_bookId_key" ON "SaveBook"("userId", "bookId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BookViews_userId_bookId_key" ON "BookViews"("userId", "bookId");
 
 -- AddForeignKey
 ALTER TABLE "Book" ADD CONSTRAINT "Book_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -67,3 +80,9 @@ ALTER TABLE "SaveBook" ADD CONSTRAINT "SaveBook_userId_fkey" FOREIGN KEY ("userI
 
 -- AddForeignKey
 ALTER TABLE "SaveBook" ADD CONSTRAINT "SaveBook_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BookViews" ADD CONSTRAINT "BookViews_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BookViews" ADD CONSTRAINT "BookViews_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
