@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { BookProps } from "./types";
+import React, { memo } from "react";
 import { Star1, Save2 } from "iconsax-react";
 import { useSession } from "next-auth/react";
 import { likeAction , saveBookAction } from "./action";
@@ -14,20 +15,23 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-const Book = ({ book }: { book: any }) => {
+const Book = memo(({ book }: { book: any }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const [boldStars, setBoldStars] = useState<boolean[]>(Array(5).fill(false));
   const [saved, setSaved] = useState<boolean>(false);
 
-  const countOflike = book.likes[0]?.countOfLike || 0;
-
+  
   // Set the initial bold stars based on countOfLike
+
   useEffect(() => {
+    const countOflike = book.likes[0]?.countOfLike || 0;
+    const isSaved = book.savedBy[0]?.isSaved || false;
     const newBoldStars = [...boldStars];
     newBoldStars.fill(true, 0, countOflike);
     setBoldStars(newBoldStars);
-  }, [countOflike]);
+    setSaved(isSaved);
+  }, [userId]);
 
   const setRate = async (liked: boolean, index: number) => {
     // Update the stars state
@@ -117,6 +121,6 @@ const Book = ({ book }: { book: any }) => {
       </CardFooter>
     </Card>
   );
-};
+});
 
 export default Book;
