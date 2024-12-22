@@ -16,16 +16,17 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useCommentDispatch } from "@/app/redux/store/hooks";
 import { setCommentQuery } from "@/app/redux/store/CommentSlice";
+import CommentSection from "../comment/CommentSection";
 
 const Book = memo(({ book }: { book: any }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const dispatch = useCommentDispatch();
 
   const [boldStars, setBoldStars] = useState<boolean[]>(Array(5).fill(false));
   const [saved, setSaved] = useState<boolean>(false);
   const [imageHover, setImageHover] = useState<boolean>(false);
   const [seeBook, setSeeBook] = useState<boolean>(false);
+  const [showComments, setShowComments] = useState<boolean>(false);
   const bookRef = useRef<HTMLDivElement>(null);
 
   // Set the initial bold stars based on countOfLike
@@ -143,21 +144,16 @@ const Book = memo(({ book }: { book: any }) => {
           <Button
             variant="outline"
             className="w-full bg-black text-white hover:bg-white hover:text-black transition-colors"
-            onClick={() =>
-              dispatch(
-                setCommentQuery({
-                  bookId: book.id,
-                  userId: userId!,
-                  showComments: true,
-                })
-              )
-            }
+            onClick={() => setShowComments((prev) => !prev)}
           >
-            See Comments
+            {showComments ? "Hide Comments" : "See Comments"}
           </Button>
         </CardFooter>
       )}
       <div ref={bookRef}></div>
+      <div>
+        {showComments && <CommentSection bookId={book.id} comments={book.comments}  userId={userId!} />}
+      </div>
     </Card>
   );
 });

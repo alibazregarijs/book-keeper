@@ -80,12 +80,24 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
         savedBy: {
           select: { userId: true, isSaved: true },
         },
+        comments: {
+          select: {
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+            userId: true,
+            user: {
+              select: { name: true, avatar: true }, // Include user details
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
       },
     });
 
     // Fetch views data grouped by bookId
     const views = await prisma.bookViews.groupBy({
-      by: ['bookId'],
+      by: ["bookId"],
       _sum: {
         views: true,
       },
@@ -93,7 +105,7 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
 
     // Fetch like counts grouped by bookId and userId
     const likes = await prisma.bookLike.groupBy({
-      by: ['bookId', 'userId'],
+      by: ["bookId", "userId"],
       _sum: {
         countOfLike: true,
       },
@@ -118,15 +130,11 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
 
       // Check if the user saved this book
       const isSavedByUser = userId
-        ? book.savedBy.some(
-            (item) => item.userId === userId && item.isSaved
-          )
+        ? book.savedBy.some((item) => item.userId === userId && item.isSaved)
         : false;
 
       // Get the like count for the userId, if available
-      const quantityOfLike = userId
-        ? likesMap[book.id]?.[userId] || 0
-        : 0;
+      const quantityOfLike = userId ? likesMap[book.id]?.[userId] || 0 : 0;
 
       return {
         ...book,
@@ -157,11 +165,8 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
     });
 
     return sortedBooks; // Return sorted books
-
   } catch (error) {
-    console.error('Error fetching explore books:', error);
-    throw new Error('Failed to fetch explore books.');
+    console.error("Error fetching explore books:", error);
+    throw new Error("Failed to fetch explore books.");
   }
 };
-
-
