@@ -15,7 +15,8 @@ const page = async ({
   return (
     <div>
       <ClientSessionProvider>
-        <Hero query={query} />
+        <Navbar query={query} />
+        <Hero  />
       </ClientSessionProvider>
     </div>
   );

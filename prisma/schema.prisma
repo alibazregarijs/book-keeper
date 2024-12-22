@@ -3,35 +3,37 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // Or your database type
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  avatar    String
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  books     Book[]    // One-to-Many relationship: A user can have many books
-  bookLikes BookLike[] // Added the reverse relation for BookLike
-  savedBooks SaveBook[] // Reverse relation for SaveBook
-  bookViews BookViews[] // Reverse relation for BookViews
+  id          Int       @id @default(autoincrement())
+  name        String
+  avatar      String
+  email       String    @unique
+  password    String
+  createdAt   DateTime  @default(now())
+  books       Book[]    // One-to-Many relationship: A user can have many books
+  bookLikes   BookLike[] 
+  savedBooks  SaveBook[] 
+  bookViews   BookViews[] 
+  comments    Comment[] // Reverse relation for Comment
 }
 
 model Book {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   genre       String
   pageCount   Int
   description String
-  userId      Int      // Foreign key to associate with User
-  user        User     @relation(fields: [userId], references: [id]) // Relation setup
+  userId      Int        // Foreign key to associate with User
+  user        User       @relation(fields: [userId], references: [id]) // Relation setup
   imageUrl    String
-  likes       BookLike[] // One-to-Many relationship: A book can have many likes
-  savedBy     SaveBook[] // Reverse relation for SaveBook
-  bookViews   BookViews[] // Reverse relation for BookViews
+  likes       BookLike[] 
+  savedBy     SaveBook[] 
+  bookViews   BookViews[] 
+  comments    Comment[]  // Reverse relation for Comment
 }
 
 model BookLike {
@@ -39,7 +41,7 @@ model BookLike {
   userId      Int      // Foreign key to associate with User
   user        User     @relation(fields: [userId], references: [id]) // Relation setup
   bookId      Int      // Foreign key to associate with Book
-  book        Book     @relation(fields: [bookId], references: [id]) // Added the reverse relation to Book
+  book        Book     @relation(fields: [bookId], references: [id]) 
   countOfLike Int
   isLiked     Boolean  @default(false)
   @@unique([userId, bookId])
@@ -50,7 +52,7 @@ model SaveBook {
   userId      Int      // Foreign key to associate with User
   user        User     @relation(fields: [userId], references: [id]) // Relation setup
   bookId      Int      // Foreign key to associate with Book
-  book        Book     @relation(fields: [bookId], references: [id]) // Added the reverse relation to Book
+  book        Book     @relation(fields: [bookId], references: [id]) 
   isSaved     Boolean  @default(false)
   @@unique([userId, bookId])
 }
@@ -60,7 +62,18 @@ model BookViews {
   userId      Int      // Foreign key to associate with User
   user        User     @relation(fields: [userId], references: [id]) // Relation setup
   bookId      Int      // Foreign key to associate with Book
-  book        Book     @relation(fields: [bookId], references: [id]) // Added the reverse relation to Book
+  book        Book     @relation(fields: [bookId], references: [id]) 
   views       Int
   @@unique([userId, bookId])
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  content     String    // Comment content
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      Int       // Foreign key to associate with User
+  user        User      @relation(fields: [userId], references: [id]) // Relation setup
+  bookId      Int       // Foreign key to associate with Book
+  book        Book      @relation(fields: [bookId], references: [id]) // Relation setup
 }

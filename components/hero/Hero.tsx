@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Navbar } from "@/components/navbar/Navbar";
 import Link from "next/link";
 
-const Hero = async ({ query }: { query?: string }) => {
+const Hero = async () => {
   return (
     <div className="relative w-full h-screen">
       {/* Background Image */}
@@ -19,9 +19,7 @@ const Hero = async ({ query }: { query?: string }) => {
       />
 
       {/* Navbar Positioned Over the Hero */}
-      <div className="absolute top-0 left-0 w-full z-10">
-        <Navbar query={query} />
-      </div>
+   
 
       {/* Hero Content */}
       <div className="flex items-center justify-center h-full">

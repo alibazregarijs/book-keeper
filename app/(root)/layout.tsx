@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/navbar/Navbar";
 import "./globals.css";
-import Hero from "@/components/hero/Hero";
+import ClientReduxProvider from "./ClientReduxProvider";
 
 
 const geistSans = Geist({
@@ -34,9 +34,8 @@ export default function RootLayout({
         <Toaster />
 
         <main>
-          
-          {children}
-          </main>
+          <ClientReduxProvider>{children}</ClientReduxProvider>
+        </main>
       </body>
     </html>
   );
