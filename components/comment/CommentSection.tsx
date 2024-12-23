@@ -6,6 +6,7 @@ import FormReply from "./FormReply";
 import { FormComment } from "./FormComment";
 import { Session } from "next-auth";
 import { generateRandomId } from "@/lib/utils";
+import { deleteComment } from "./action";
 
 interface Comment {
   id: number;
@@ -34,7 +35,9 @@ export default function CommentSection({
   const [newComment, setNewComment] = useState<string>("");
   const [newReply, setNewReply] = useState<string>("");
   const [replyState, setReplyState] = useState<{ [key: number]: boolean }>({});
-  const [nestedReplyState, setNestedReplyState] = useState<{ [key: number]: boolean }>({});
+  const [nestedReplyState, setNestedReplyState] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   const handleReplyToggle = (commentId: number) => {
     setReplyState((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
@@ -44,6 +47,31 @@ export default function CommentSection({
     setNestedReplyState((prev) => ({ ...prev, [replyId]: !prev[replyId] }));
   };
 
+  const handleDelete = (commentId: number, comments = initialComments) => {
+    const updatedComments = comments
+      .map((comment) => {
+        if (comment.id === commentId) {
+          console.log("found it");
+          return null;
+        }
+
+        if (comment.replies) {
+          comment.replies = handleDelete(commentId, comment.replies);
+        }
+
+        return comment;
+      })
+
+      .filter((comment) => comment !== null);
+
+    return updatedComments;
+  };
+
+  // Inside your component, use `handleDelete` to update the state:
+  const handleDeleteComment = (commentId: number) => {
+    const updatedComments = handleDelete(commentId, comments);
+    setComments(updatedComments);
+  };
   // Add a new comment to the top-level comments
   const addNewComment = (content: string) => {
     const newCommentObject: Comment = {
@@ -104,7 +132,10 @@ export default function CommentSection({
 
   const renderComments = (comments: Comment[]) => {
     return comments.map((comment) => (
-      <div key={comment.id} className="border border-gray-200 p-4 space-y-5 rounded-md">
+      <div
+        key={comment.id}
+        className="border border-gray-200 p-4 space-y-5 rounded-md"
+      >
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center space-x-1">
             <Image
@@ -120,6 +151,12 @@ export default function CommentSection({
         </div>
         <div className="flex justify-between items-center">
           <p className="text-sm">{comment.content}</p>
+          <p
+            onClick={() => handleDeleteComment(comment.id)}
+            className="text-sm text-red-500 cursor-pointer"
+          >
+            Delete
+          </p>
           <DirectRight
             onClick={() => {
               handleReplyToggle(comment.id);
@@ -141,7 +178,9 @@ export default function CommentSection({
           />
         )}
         {comment.replies && comment.replies.length > 0 && (
-          <div className="ml-6 mt-4 space-y-4">{renderComments(comment.replies)}</div>
+          <div className="ml-6 mt-4 space-y-4">
+            {renderComments(comment.replies)}
+          </div>
         )}
       </div>
     ));

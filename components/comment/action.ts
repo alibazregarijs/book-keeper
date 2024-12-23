@@ -41,3 +41,12 @@ export async function createReply(
 
   return createdReply;
 }
+
+export async function deleteComment(commentId: number) {
+  await prisma.comment.delete({
+    where: {
+      id: commentId,
+    },
+  });
+
+}
