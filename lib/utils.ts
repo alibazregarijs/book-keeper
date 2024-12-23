@@ -6,6 +6,7 @@ import {
   saveBookAction,
 } from "@/components/book/action";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -82,6 +83,8 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
         },
         comments: {
           select: {
+            id: true,
+            isReply: true,
             content: true,
             createdAt: true,
             updatedAt: true,
@@ -89,7 +92,20 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
             user: {
               select: { name: true, avatar: true }, // Include user details
             },
+            replies: {
+              select: {
+                id: true,
+                content: true,
+                createdAt: true,
+                updatedAt: true,
+                userId: true,
+                user: {
+                  select: { name: true, avatar: true }, // Include user details
+                },
+              },
+            },
           },
+
           orderBy: { createdAt: "desc" },
         },
       },
@@ -164,9 +180,11 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
       );
     });
 
+ 
     return sortedBooks; // Return sorted books
   } catch (error) {
     console.error("Error fetching explore books:", error);
     throw new Error("Failed to fetch explore books.");
   }
+  
 };

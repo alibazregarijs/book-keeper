@@ -1,5 +1,6 @@
 "use server";
 import { PrismaClient } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 // import { prisma } from '@/lib/prisma'; // Assuming your Prisma client instance is set up here
 const prisma = new PrismaClient();
 export async function likeAction({
@@ -99,7 +100,9 @@ export async function IncreaseViews({
     }
 
     // If a view already exists, do nothing
+
     return existingView;
+
   } catch (error) {
     console.error("Error saving unique page view:", error);
     throw new Error("Failed to save unique page view");

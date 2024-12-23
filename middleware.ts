@@ -18,5 +18,5 @@ export async function middleware(req: NextRequest) {
 
 // Specify the route(s) you want to protect
 export const config = {
-  matcher: ["/"], // Protect the home route ("/") or any other route
+  matcher: ["/", "/book",], // Protect the home route ("/") or any other route
 };

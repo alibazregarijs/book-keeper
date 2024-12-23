@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { useCommentDispatch } from "@/app/redux/store/hooks";
-import { setCommentQuery } from "@/app/redux/store/CommentSlice";
 import CommentSection from "../comment/CommentSection";
 
 const Book = memo(({ book }: { book: any }) => {
@@ -30,6 +28,8 @@ const Book = memo(({ book }: { book: any }) => {
   const bookRef = useRef<HTMLDivElement>(null);
 
   // Set the initial bold stars based on countOfLike
+
+  console.log(book, "book");
 
   useEffect(() => {
     const countOflike = book.quantityOfLike;
@@ -61,6 +61,7 @@ const Book = memo(({ book }: { book: any }) => {
             onMouseLeave={() => setImageHover(false)}
             className="absolute inset-0 flex items-center justify-center"
           >
+            
             <Button
               onClick={() => {
                 setSeeBook(true),
@@ -152,7 +153,14 @@ const Book = memo(({ book }: { book: any }) => {
       )}
       <div ref={bookRef}></div>
       <div>
-        {showComments && <CommentSection bookId={book.id} comments={book.comments}  userId={userId!} />}
+        {showComments && (
+          <CommentSection
+            bookId={book.id}
+            comments={book.comments}
+            userId={userId!}
+            session={session}
+          />
+        )}
       </div>
     </Card>
   );

@@ -76,4 +76,11 @@ model Comment {
   user        User      @relation(fields: [userId], references: [id]) // Relation setup
   bookId      Int       // Foreign key to associate with Book
   book        Book      @relation(fields: [bookId], references: [id]) // Relation setup
+
+  isReply     Boolean   @default(false) // Flag to identify if it's a reply
+  parentId    Int?      // Foreign key for parent comment (nullable for non-replies)
+  parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id]) // Relation to parent comment
+  replies     Comment[] @relation("CommentReplies") // Replies to this comment (self-relation)
+
+  // You can remove the `repliesRel` relation now as replies are handled via self-relation
 }
