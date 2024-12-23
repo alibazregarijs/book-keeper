@@ -75,7 +75,7 @@ export const savedBook = async ({
 
 export const getExploreBooks = async ({ userId }: { userId?: number }) => {
   try {
-    // Fetch only necessary data for books
+    // Fetch books with nested comments and replies
     const books = await prisma.book.findMany({
       include: {
         savedBy: {
@@ -95,17 +95,44 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
             replies: {
               select: {
                 id: true,
+                isReply: true,
                 content: true,
                 createdAt: true,
                 updatedAt: true,
                 userId: true,
                 user: {
-                  select: { name: true, avatar: true }, // Include user details
+                  select: { name: true, avatar: true },
+                },
+                replies: {
+                  select: {
+                    id: true,
+                    isReply: true,
+                    content: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    userId: true,
+                    user: {
+                      select: { name: true, avatar: true },
+                    },
+                    replies: {
+                      // Continue nesting for deeper replies if necessary
+                      select: {
+                        id: true,
+                        isReply: true,
+                        content: true,
+                        createdAt: true,
+                        updatedAt: true,
+                        userId: true,
+                        user: {
+                          select: { name: true, avatar: true },
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
           },
-
           orderBy: { createdAt: "desc" },
         },
       },
@@ -127,20 +154,19 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
       },
     });
 
-    // Create a quick lookup map for views
+    // Create lookup maps for views and likes
     const viewsMap = views.reduce((acc, view) => {
       acc[view.bookId] = view._sum.views || 0;
       return acc;
     }, {} as Record<number, number>);
 
-    // Create a quick lookup map for likes, grouped by bookId
     const likesMap = likes.reduce((acc, like) => {
       if (!acc[like.bookId]) acc[like.bookId] = {};
       acc[like.bookId][like.userId] = like._sum.countOfLike || 0;
       return acc;
     }, {} as Record<number, Record<number, number>>);
 
-    // Map the books to include views, likes, and save status
+    // Map books with additional details
     const booksWithViewsAndSaveStatus = books.map((book) => {
       const totalViews = viewsMap[book.id] || 0;
 
@@ -169,22 +195,17 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
       return b.savedCount - a.savedCount;
     });
 
-    // Find the books with greater likesCount, totalViews, and savedCount than the previous book
-    const greaterBooks = sortedBooks.filter((book, index, arr) => {
-      if (index === 0) return false; // No previous book to compare with
-      const prevBook = arr[index - 1];
-      return (
-        book.likesCount > prevBook.likesCount &&
-        book.totalViews > prevBook.totalViews &&
-        book.savedCount > prevBook.savedCount
-      );
-    });
-
- 
     return sortedBooks; // Return sorted books
   } catch (error) {
     console.error("Error fetching explore books:", error);
     throw new Error("Failed to fetch explore books.");
   }
-  
+};
+export const generateRandomId = (length = 16) => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let id = '';
+  for (let i = 0; i < length; i++) {
+    id += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return id;
 };
