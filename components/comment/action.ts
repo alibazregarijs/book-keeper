@@ -27,26 +27,41 @@ export async function createReply(
   bookId: string | number,
   isReply: boolean
 ) {
-  const createdReply = await prisma.comment.create({
-    data: {
-      content,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: typeof userId === "string" ? parseInt(userId) : userId,
-      bookId: typeof bookId === "string" ? parseInt(bookId) : bookId,
-      parentId: parentCommentId,
-      isReply: isReply,
-    },
-  });
+  try {
+    // Ensure parent comment exists
 
-  return createdReply;
+
+    const parentComment = await prisma.comment.findUnique({
+      where: { id: parentCommentId },
+    });
+
+    if (!parentComment) {
+      throw new Error("Parent comment does not exist.");
+    }
+
+    // Create the reply
+    const createdReply = await prisma.comment.create({
+      data: {
+        content,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userId: typeof userId === "string" ? parseInt(userId, 10) : userId,
+        bookId: typeof bookId === "string" ? parseInt(bookId, 10) : bookId,
+        parentId: parentCommentId,
+        isReply: isReply,
+      },
+    });
+
+    return createdReply;
+  } catch (error) {
+    console.error("Error creating reply:");
+    throw error; // Rethrow the error if needed for higher-level handling
+  }
 }
-
 export async function deleteComment(commentId: number) {
   await prisma.comment.delete({
     where: {
       id: commentId,
     },
   });
-
 }

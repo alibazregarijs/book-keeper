@@ -6,6 +6,7 @@ export type BookProps = {
   userId: number;
   description: string;
   imageUrl: string;
+  comments: Comment[];
   likes:{
     id : number;
     countOfLike: number;

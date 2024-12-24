@@ -97,7 +97,6 @@ export function AddBookModal() {
         className:"bg-green-500 text-white border-green-500",
       });
       resetForm();
-      console.log("Book added successfully");
     } catch (error) {
       console.error("Error adding book:", error);
     }

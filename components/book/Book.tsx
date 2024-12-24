@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import CommentSection from "../comment/CommentSection";
 
-const Book = memo(({ book }: { book: any }) => {
+const Book = memo(({ book , lengthOfComments }: { book: any, lengthOfComments: number }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
@@ -29,7 +29,7 @@ const Book = memo(({ book }: { book: any }) => {
 
   // Set the initial bold stars based on countOfLike
 
-  console.log(book, "book");
+
 
   useEffect(() => {
     const countOflike = book.quantityOfLike;
@@ -159,6 +159,7 @@ const Book = memo(({ book }: { book: any }) => {
             comments={book.comments}
             userId={userId!}
             session={session}
+            lengthOfComments={lengthOfComments}
           />
         )}
       </div>

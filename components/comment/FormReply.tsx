@@ -24,7 +24,7 @@ export const FormReply = ({
     isReply: boolean
   ) => void;
 }) => {
-  console.log(parentCommentAuthor, "author parent");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {

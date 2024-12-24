@@ -9,7 +9,6 @@ import SearchResetForm from "./SearchResetForm";
 export const Searchbox = async({ query }: { query?: string }) => {
   const headersList = await headers(); // Fetch headers on the server
   const currentUrl = headersList.get("referer") || "";
-  console.log(currentUrl,"current")
   return (
     <div className="relative w-full">
       <Form action={currentUrl} scroll={false} id="search-form">

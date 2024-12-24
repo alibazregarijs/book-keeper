@@ -12,7 +12,7 @@ export async function likeAction({
   bookId: number;
   countOfLike: number;
 }) {
-  console.log(userId, bookId, countOfLike, "action server");
+
 
   // Upsert to either create or update the like record for the user and book
   const likeRecord = await prisma.bookLike.upsert({
@@ -47,7 +47,7 @@ export async function saveBookAction({
   userId: number;
   isSaved: boolean;
 }) {
-  console.log(bookId, userId, isSaved);
+
 
   const saveBookRecord = await prisma.saveBook.upsert({
     where: {
@@ -126,5 +126,20 @@ export async function getTotalViews(bookId: number): Promise<number> {
   } catch (error) {
     console.error("Error fetching total views:", error);
     throw new Error("Failed to fetch total views");
+  }
+}
+
+export async function getLastCommentId() {
+  try {
+    const lastComment = await prisma.comment.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return lastComment?.id;
+  } catch (error) {
+    console.error("Error fetching last comment id:", error);
+    throw new Error("Failed to fetch last comment id");
   }
 }

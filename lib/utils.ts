@@ -28,7 +28,6 @@ export const setRate = async ({
   setBoldStars: React.Dispatch<React.SetStateAction<boolean[]>>;
 }) => {
   // Update the stars state
-  console.log("salamaaaa");
   const newBoldStars = [...boldStars];
   if (!liked) {
     newBoldStars.fill(true, 0, index + 1);
