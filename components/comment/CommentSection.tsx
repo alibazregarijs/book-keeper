@@ -14,6 +14,7 @@ export interface Comment {
   user: {
     name: string;
     avatar?: string;
+    id: number;
   };
   content: string;
   date: string;
@@ -38,22 +39,29 @@ export default function CommentSection({
   const [newReply, setNewReply] = useState<string>("");
   const [lastId, setLastId] = useState(null);
   const [replyState, setReplyState] = useState<{ [key: number]: boolean }>({});
-  const [nestedReplyState, setNestedReplyState] = useState<{
-    [key: number]: boolean;
-  }>({});
+  const [lastCommentIdState, setLastCommentIdState] = useState<
+    number | undefined
+  >(0);
 
   const handleReplyToggle = (commentId: number) => {
     setReplyState({ [commentId]: !replyState[commentId] });
   };
 
-  const handleNestedReplyToggle = (replyId: number) => {
-    setNestedReplyState((prev) => ({ ...prev, [replyId]: !prev[replyId] }));
-  };
+  useEffect(() => {
+    const fetchLastCommentId = async () => {
+      const commentId = await getLastCommentId();
+      console.log(commentId, "comment id in use effect");
+      setLastCommentIdState(commentId || 0);
+    };
+
+    fetchLastCommentId();
+  }, [comments]);
 
   const handleDelete = (commentId: number, comments = initialComments) => {
     const updatedComments = comments
       .map((comment) => {
         if (comment.id === commentId) {
+          deleteComment(commentId);
           return null;
         }
 
@@ -68,34 +76,37 @@ export default function CommentSection({
     return updatedComments;
   };
 
-  const handleDeleteComment = (commentId: number) => {
-    const updatedComments = handleDelete(commentId, comments);
-    setComments(updatedComments);
+  const handleDeleteComment = async (commentId: number) => {
+    try {
+      const updatedComments = handleDelete(commentId, comments);
+      setComments(updatedComments);
+    } catch (error) {
+      console.error("Error fetching last comment id:", error);
+    }
   };
 
-  const addNewComment = (content: string) => {
-    const lastComment = comments[0];
-    const lastCommentId = lastComment?.id;
-    console.log(comments, "comments");
-    console.log(lastCommentId, "last comment id");
+  const addNewComment = async (content: string) => {
+    try {
+      const newCommentObject: Comment = {
+        id: lastCommentIdState! +1,
 
-    const newCommentObject: Comment = {
-      id:
-        lastCommentId > lengthOfComments
-          ? lastCommentId + 1
-          : lengthOfComments + 1,
-      isReply: false,
-      user: {
-        name: session?.user?.name || "Current User",
-        avatar: session?.user?.image || "/default-avatar.png",
-      },
-      content,
-      date: new Date().toLocaleDateString(),
-      replies: [],
-    };
+        isReply: false,
+        user: {
+          name: session?.user?.name || "Current User",
+          avatar: session?.user?.image || "/default-avatar.png",
+          id: Number(session?.user?.id),
+        },
+        content,
+        date: new Date().toLocaleDateString(),
+        replies: [],
+      };
 
-    setComments((prev) => [newCommentObject, ...prev]);
+
+      console.log(newCommentObject, "new comment object in add new comment");
+      setComments((prev) => [newCommentObject, ...prev]);
+    } catch (error) {}
   };
+
 
   const addReplyToComment = async (
     parentCommentId: number,
@@ -103,20 +114,20 @@ export default function CommentSection({
     isReply: boolean
   ) => {
     try {
-      const lastCommentId = (await getLastCommentId()) ?? 0; // Use 0 if lastCommentId is undefined
-
       const newReply: Comment = {
-        id: lastCommentId + 1, // Increment the ID
+        id: lastCommentIdState! + 1, // Increment the ID
         isReply,
         user: {
           name: session?.user?.name || "Current User",
           avatar: session?.user?.image || "/default-avatar.png",
+          id: Number(session?.user?.id),
         },
         content: replyContent,
         date: new Date().toLocaleDateString(),
         replies: [],
       };
 
+      console.log(newReply, "new reply in add reply");
       setComments((prevComments) =>
         prevComments.map((comment) => {
           if (comment.id === parentCommentId) {
@@ -143,10 +154,8 @@ export default function CommentSection({
     }
   };
 
-  const renderComments = (comments: Comment[], lastCommentId: number) => {
-    comments.map((comment) => {
-      console.log(comment, "comment id in looop");
-    });
+  const renderComments = (comments: Comment[]) => {
+    console.log(comments, "comments in render comments");
     return comments.map((comment, index) => (
       <div
         key={index}
@@ -167,15 +176,17 @@ export default function CommentSection({
         </div>
         <div className="flex justify-between items-center">
           <p className="text-sm">{comment.content}</p>
-          <p
-            onClick={() => handleDeleteComment(comment.id)}
-            className="text-sm text-red-500 cursor-pointer"
-          >
-            Delete
-          </p>
+          {comment.user.id === Number(session?.user?.id) && (
+            <p
+              onClick={() => handleDeleteComment(comment.id)}
+              className="text-sm text-red-500 cursor-pointer"
+            >
+              Delete
+            </p>
+          )}
+          
           <DirectRight
             onClick={() => {
-              console.log(comment.id, "parentIddddddddddd");
               handleReplyToggle(comment.id);
             }}
             size="20"
@@ -187,6 +198,7 @@ export default function CommentSection({
         {/* Show reply form only for the current comment */}
         {replyState[comment.id] && (
           <FormReply
+            id={lastCommentIdState!}
             setNewReply={setNewReply}
             newComment={newReply}
             parentCommentId={comment.id}
@@ -200,7 +212,7 @@ export default function CommentSection({
         {/* Render nested replies recursively */}
         {comment.replies && comment.replies.length > 0 && (
           <div className="ml-6 mt-4 space-y-4">
-            {renderComments(comment.replies, lastCommentId)}
+            {renderComments(comment.replies)}
           </div>
         )}
       </div>
@@ -211,16 +223,14 @@ export default function CommentSection({
     <div className="max-w-2xl mx-auto p-4 bg-white text-black">
       <h2 className="text-2xl font-bold mb-4">Comments</h2>
       <div className="space-y-4 mb-8 border p-4 h-64 overflow-y-scroll">
-        {renderComments(
-          comments.filter((comment) => !comment.isReply),
-          lengthOfComments
-        )}
+        {renderComments(comments.filter((comment) => !comment.isReply))}
       </div>
       <FormComment
         setNewComment={setNewComment}
         newComment={newComment}
         bookId={bookId}
         userId={userId}
+        id={lastCommentIdState!}
         onAddComment={addNewComment}
       />
     </div>

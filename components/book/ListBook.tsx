@@ -6,12 +6,21 @@ import Masonry from "react-masonry-css";
 import { getLastCommentId } from "./action";
 import { useState, useEffect } from "react";
 
+// const breakpointColumnsObj = {
+//   default: 3,
+//   1100: 2,
+//   700: 2,
+//   500: 1,
+// };
+
 const breakpointColumnsObj = {
   default: 3,
-  1100: 2,
-  700: 2,
+  1300: 2,
+  1000: 1,
+  700: 1,
   500: 1,
 };
+
 
 const ListBook = ({ books }: { books: BookProps[] }) => {
   const [lastCommentId, setLastCommentId] = useState<number | undefined>(

@@ -89,7 +89,7 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
             updatedAt: true,
             userId: true,
             user: {
-              select: { name: true, avatar: true }, // Include user details
+              select: { name: true, avatar: true , id: true},
             },
             replies: {
               select: {
@@ -100,7 +100,7 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
                 updatedAt: true,
                 userId: true,
                 user: {
-                  select: { name: true, avatar: true },
+                  select: { name: true, avatar: true , id: true},
                 },
                 replies: {
                   select: {
@@ -111,7 +111,7 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
                     updatedAt: true,
                     userId: true,
                     user: {
-                      select: { name: true, avatar: true },
+                      select: { name: true, avatar: true , id: true},
                     },
                     replies: {
                       // Continue nesting for deeper replies if necessary
@@ -123,7 +123,7 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
                         updatedAt: true,
                         userId: true,
                         user: {
-                          select: { name: true, avatar: true },
+                          select: { name: true, avatar: true , id: true},
                         },
                       },
                     },

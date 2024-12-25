@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { createReply } from "./action";
 
 export const FormReply = ({
+  id,
   setNewReply,
   newComment,
   parentCommentId,
@@ -12,6 +13,7 @@ export const FormReply = ({
   parentCommentAuthor,
   onAddReply, // Callback to update parent state
 }: {
+  id:number,
   setNewReply: React.Dispatch<React.SetStateAction<string>>;
   newComment: string;
   parentCommentId: number;
@@ -25,12 +27,13 @@ export const FormReply = ({
   ) => void;
 }) => {
 
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
       onAddReply(parentCommentId, newComment.trim(), true); // Update the parent comment with the reply
       setNewReply(""); // Clear the reply input
-      createReply(parentCommentId, newComment.trim(), userId, bookId, true);
+      createReply(id,parentCommentId, newComment.trim(), userId, bookId, true);
     }
   };
 

@@ -139,7 +139,6 @@ export async function getLastCommentId() {
 
     return lastComment?.id;
   } catch (error) {
-    console.error("Error fetching last comment id:", error);
     throw new Error("Failed to fetch last comment id");
   }
 }
