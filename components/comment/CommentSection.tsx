@@ -4,8 +4,7 @@ import { DirectRight } from "iconsax-react";
 import FormReply from "./FormReply";
 import { FormComment } from "./FormComment";
 import { Session } from "next-auth";
-import { generateRandomId } from "@/lib/utils";
-import { deleteComment } from "./action";
+import { handleDelete, addNewComment, addReplyToComment } from "./utils";
 import { getLastCommentId } from "../book/action";
 
 export interface Comment {
@@ -25,7 +24,6 @@ export default function CommentSection({
   bookId,
   userId,
   comments: initialComments,
-  lengthOfComments,
   session,
 }: {
   bookId: string;
@@ -37,7 +35,6 @@ export default function CommentSection({
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState<string>("");
   const [newReply, setNewReply] = useState<string>("");
-  const [lastId, setLastId] = useState(null);
   const [replyState, setReplyState] = useState<{ [key: number]: boolean }>({});
   const [lastCommentIdState, setLastCommentIdState] = useState<
     number | undefined
@@ -50,31 +47,10 @@ export default function CommentSection({
   useEffect(() => {
     const fetchLastCommentId = async () => {
       const commentId = await getLastCommentId();
-      console.log(commentId, "comment id in use effect");
       setLastCommentIdState(commentId || 0);
     };
-
     fetchLastCommentId();
   }, [comments]);
-
-  const handleDelete = (commentId: number, comments = initialComments) => {
-    const updatedComments = comments
-      .map((comment) => {
-        if (comment.id === commentId) {
-          deleteComment(commentId);
-          return null;
-        }
-
-        if (comment.replies) {
-          comment.replies = handleDelete(commentId, comment.replies);
-        }
-
-        return comment;
-      })
-      .filter((comment) => comment !== null);
-
-    return updatedComments;
-  };
 
   const handleDeleteComment = async (commentId: number) => {
     try {
@@ -85,77 +61,7 @@ export default function CommentSection({
     }
   };
 
-  const addNewComment = async (content: string) => {
-    try {
-      const newCommentObject: Comment = {
-        id: lastCommentIdState! +1,
-
-        isReply: false,
-        user: {
-          name: session?.user?.name || "Current User",
-          avatar: session?.user?.image || "/default-avatar.png",
-          id: Number(session?.user?.id),
-        },
-        content,
-        date: new Date().toLocaleDateString(),
-        replies: [],
-      };
-
-
-      console.log(newCommentObject, "new comment object in add new comment");
-      setComments((prev) => [newCommentObject, ...prev]);
-    } catch (error) {}
-  };
-
-
-  const addReplyToComment = async (
-    parentCommentId: number,
-    replyContent: string,
-    isReply: boolean
-  ) => {
-    try {
-      const newReply: Comment = {
-        id: lastCommentIdState! + 1, // Increment the ID
-        isReply,
-        user: {
-          name: session?.user?.name || "Current User",
-          avatar: session?.user?.image || "/default-avatar.png",
-          id: Number(session?.user?.id),
-        },
-        content: replyContent,
-        date: new Date().toLocaleDateString(),
-        replies: [],
-      };
-
-      console.log(newReply, "new reply in add reply");
-      setComments((prevComments) =>
-        prevComments.map((comment) => {
-          if (comment.id === parentCommentId) {
-            return {
-              ...comment,
-              replies: [newReply, ...(comment.replies || [])],
-            };
-          }
-          if (comment.replies) {
-            return {
-              ...comment,
-              replies: comment.replies.map((reply) =>
-                reply.id === parentCommentId
-                  ? { ...reply, replies: [newReply, ...(reply.replies || [])] }
-                  : reply
-              ),
-            };
-          }
-          return comment;
-        })
-      );
-    } catch (error) {
-      console.error("Error adding reply:", error);
-    }
-  };
-
   const renderComments = (comments: Comment[]) => {
-    console.log(comments, "comments in render comments");
     return comments.map((comment, index) => (
       <div
         key={index}
@@ -184,7 +90,7 @@ export default function CommentSection({
               Delete
             </p>
           )}
-          
+
           <DirectRight
             onClick={() => {
               handleReplyToggle(comment.id);
@@ -202,10 +108,18 @@ export default function CommentSection({
             setNewReply={setNewReply}
             newComment={newReply}
             parentCommentId={comment.id}
-            parentCommentAuthor={comment.user.name}
             userId={userId}
             bookId={bookId}
-            onAddReply={addReplyToComment}
+            onAddReply={() => {
+              addReplyToComment(
+                setComments,
+                lastCommentIdState,
+                session,
+                comment.id,
+                newReply,
+                true
+              );
+            }}
           />
         )}
 
@@ -231,7 +145,9 @@ export default function CommentSection({
         bookId={bookId}
         userId={userId}
         id={lastCommentIdState!}
-        onAddComment={addNewComment}
+        onAddComment={(content) => {
+          addNewComment(content, setComments, lastCommentIdState, session);
+        }}
       />
     </div>
   );

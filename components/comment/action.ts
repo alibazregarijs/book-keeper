@@ -3,15 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function createComment(
-  id:number,
+  id: number,
   bookId: string | number,
   userId: string | number,
   content: string
 ) {
-  console.log(id,"id in action")
+  console.log(id, "id in action");
   const createdComment = await prisma.comment.create({
     data: {
-      id:id+1,
+      id: id + 1,
       content,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -24,7 +24,7 @@ export async function createComment(
 }
 
 export async function createReply(
-  id:number,
+  id: number,
   parentCommentId: number,
   content: string,
   userId: string | number,
@@ -33,22 +33,19 @@ export async function createReply(
 ) {
   try {
     // Ensure parent comment exists
-    console.log(id,"last id in action")
-    console.log(parentCommentId,"parent in action")
     const parentComment = await prisma.comment.findUnique({
-    
       where: { id: parentCommentId },
     });
 
     if (!parentComment) {
-      console.log(parentCommentId,"parent comment id")
+      console.log(parentCommentId, "parent comment id");
       throw new Error("Parent comment does not exist.");
     }
 
     // Create the reply
     const createdReply = await prisma.comment.create({
       data: {
-        id:id+1,
+        id: id + 1,
         content,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -77,7 +74,10 @@ export async function deleteComment(commentId: number) {
 
   if (!comment) {
     console.log(`Comment with ID ${commentId} does not exist.`);
-    return { success: false, message: `Comment with ID ${commentId} does not exist.` };
+    return {
+      success: false,
+      message: `Comment with ID ${commentId} does not exist.`,
+    };
   }
 
   // If the comment exists, delete it
@@ -88,6 +88,8 @@ export async function deleteComment(commentId: number) {
   });
 
   console.log(`Comment with ID ${commentId} has been deleted.`);
-  return { success: true, message: `Comment with ID ${commentId} has been deleted.` };
+  return {
+    success: true,
+    message: `Comment with ID ${commentId} has been deleted.`,
+  };
 }
-
