@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 
 const Page = async () => {
   const session = await getServerSession(authOptions);
+
   const userId = session?.user?.id ? Number(session.user.id) : undefined;
   
   if (!userId) {

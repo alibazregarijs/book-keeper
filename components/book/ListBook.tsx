@@ -21,28 +21,21 @@ const breakpointColumnsObj = {
   500: 1,
 };
 
+const ListBook = ({ books , oneBook }: { books: BookProps[] , oneBook:boolean }) => {
 
-const ListBook = ({ books }: { books: BookProps[] }) => {
-  const [lastCommentId, setLastCommentId] = useState<number | undefined>(
-    undefined
-  );
+  const dynamicBreakpointColumnsObj = oneBook
+  ? { default: 3 }
+  : breakpointColumnsObj;
 
-  useEffect(() => {
-    const fetchLastCommentId = async () => {
-      const commentId = await getLastCommentId();
-      setLastCommentId(commentId);
-    };
-
-    fetchLastCommentId();
-  }, []);
+  const masonryClass = oneBook ? "flex justify-center animate-slide-fwd gap-10 relative mx-4" :"flex animate-slide-fwd gap-10 relative mx-4"
 
   return (
     <Masonry
-      breakpointCols={breakpointColumnsObj}
-      className="flex animate-slide-fwd gap-10 relative mx-4"
+      breakpointCols={dynamicBreakpointColumnsObj}
+      className={masonryClass}
     >
       {books?.map((book, index) => (
-        <Book key={index} book={book} lengthOfComments={lastCommentId ?? 0} />
+        <Book key={index} book={book} oneBook={oneBook} />
       ))}
     </Masonry>
   );

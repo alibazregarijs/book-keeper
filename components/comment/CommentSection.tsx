@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { DirectRight } from "iconsax-react";
 import FormReply from "./FormReply";
@@ -25,12 +25,13 @@ export default function CommentSection({
   userId,
   comments: initialComments,
   session,
+  theUserAddBook,
 }: {
   bookId: string;
   userId: string;
   comments: Comment[];
   session: Session | null;
-  lengthOfComments: number;
+  theUserAddBook: number;
 }) {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState<string>("");
@@ -40,9 +41,28 @@ export default function CommentSection({
     number | undefined
   >(0);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Extract the number after # from the URL
+      const hash = window.location.hash;
+      const hashNumber = hash ? parseInt(hash.replace("#", "")) : null;
+
+      // If there is a valid hash number, scroll to the element
+      if (hashNumber) {
+        const element = document.getElementById(hashNumber.toString());
+        if (element) {
+          // Scroll to the element smoothly
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+  }, []);
+
   const handleReplyToggle = (commentId: number) => {
     setReplyState({ [commentId]: !replyState[commentId] });
   };
+
+  console.log(theUserAddBook, "theUserAddBook");
 
   useEffect(() => {
     const fetchLastCommentId = async () => {
@@ -60,6 +80,29 @@ export default function CommentSection({
       console.error("Error fetching last comment id:", error);
     }
   };
+
+  // Memoize the addNewComment function
+  const memoizedAddNewComment = useCallback(
+    (content: string) => {
+      addNewComment(content, setComments, lastCommentIdState, session);
+    },
+    [lastCommentIdState, session]
+  );
+
+  // Memoize the addReplyToComment function
+  const memoizedAddReplyToComment = useCallback(
+    (parentCommentId: number, replyContent: string, isReply: boolean) => {
+      addReplyToComment(
+        setComments,
+        lastCommentIdState,
+        session,
+        parentCommentId,
+        replyContent,
+        isReply
+      );
+    },
+    [lastCommentIdState, session]
+  );
 
   const renderComments = (comments: Comment[]) => {
     return comments.map((comment, index) => (
@@ -82,6 +125,7 @@ export default function CommentSection({
         </div>
         <div className="flex justify-between items-center">
           <p className="text-sm">{comment.content}</p>
+          <div id={`${comment.id}`}></div>
           {comment.user.id === Number(session?.user?.id) && (
             <p
               onClick={() => handleDeleteComment(comment.id)}
@@ -101,7 +145,6 @@ export default function CommentSection({
           />
         </div>
 
-        {/* Show reply form only for the current comment */}
         {replyState[comment.id] && (
           <FormReply
             id={lastCommentIdState!}
@@ -111,19 +154,11 @@ export default function CommentSection({
             userId={userId}
             bookId={bookId}
             onAddReply={() => {
-              addReplyToComment(
-                setComments,
-                lastCommentIdState,
-                session,
-                comment.id,
-                newReply,
-                true
-              );
+              memoizedAddReplyToComment(comment.id, newReply, true);
             }}
           />
         )}
 
-        {/* Render nested replies recursively */}
         {comment.replies && comment.replies.length > 0 && (
           <div className="ml-6 mt-4 space-y-4">
             {renderComments(comment.replies)}
@@ -144,9 +179,10 @@ export default function CommentSection({
         newComment={newComment}
         bookId={bookId}
         userId={userId}
+        theUserAddBook={theUserAddBook}
         id={lastCommentIdState!}
         onAddComment={(content) => {
-          addNewComment(content, setComments, lastCommentIdState, session);
+          memoizedAddNewComment(content);
         }}
       />
     </div>

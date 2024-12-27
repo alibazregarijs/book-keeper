@@ -1,7 +1,8 @@
 import { type Comment } from "./CommentSection";
 import { type Session } from "next-auth";
-import { generateRandomId } from "@/lib/utils";
+
 import { deleteComment } from "./action";
+import { useCallback } from "react";
 
 export const handleDelete = (commentId: number, comments: Comment[]) => {
   const updatedComments = comments

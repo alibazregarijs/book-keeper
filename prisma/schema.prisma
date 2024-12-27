@@ -8,32 +8,38 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  name        String
-  avatar      String
-  email       String    @unique
-  password    String
-  createdAt   DateTime  @default(now())
-  books       Book[]    // One-to-Many relationship: A user can have many books
-  bookLikes   BookLike[] 
-  savedBooks  SaveBook[] 
-  bookViews   BookViews[] 
-  comments    Comment[] // Reverse relation for Comment
+  id            Int              @id @default(autoincrement())
+  name          String
+  avatar        String
+  email         String           @unique
+  password      String
+  createdAt     DateTime         @default(now())
+  books         Book[]           // One-to-Many relationship: A user can have many books
+  bookLikes     BookLike[] 
+  savedBooks    SaveBook[] 
+  bookViews     BookViews[] 
+  comments      Comment[]        // Reverse relation for Comment
+
+  // Notifications
+  triggeredNotifications Notification[] @relation("UserTriggeredNotifications") // Notifications triggered by the user
+  receivedNotifications  Notification[] @relation("UserReceivedNotifications")  // Notifications received by the user
 }
 
 model Book {
-  id          Int        @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   title       String
   genre       String
   pageCount   Int
   description String
-  userId      Int        // Foreign key to associate with User
-  user        User       @relation(fields: [userId], references: [id]) // Relation setup
+  userId      Int             // Foreign key to associate with User
+  user        User            @relation(fields: [userId], references: [id]) // Relation setup
   imageUrl    String
-  likes       BookLike[] 
-  savedBy     SaveBook[] 
-  bookViews   BookViews[] 
-  comments    Comment[]  // Reverse relation for Comment
+  likes       BookLike[]
+  savedBy     SaveBook[]
+  bookViews   BookViews[]
+  comments    Comment[]
+
+  notifications Notification[] // Reverse relation for Notification
 }
 
 model BookLike {
@@ -81,4 +87,21 @@ model Comment {
   parentId    Int?      // Foreign key for parent comment (nullable for non-replies)
   parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade) // Cascade delete for parent
   replies     Comment[] @relation("CommentReplies") // Replies to this comment (self-relation)
+}
+
+model Notification {
+  id             Int      @id @default(autoincrement())
+  userId         Int      // Foreign key for the user who triggered the notification
+  user           User     @relation("UserTriggeredNotifications", fields: [userId], references: [id]) // Relation to the user who triggered
+  
+  userGetReplyId Int      // Foreign key for the user receiving the notification
+  userGetReply   User     @relation("UserReceivedNotifications", fields: [userGetReplyId], references: [id]) // Relation to the user who received
+
+  bookId         Int      // Foreign key to associate with Book
+  book           Book     @relation(fields: [bookId], references: [id]) // Relation to the book
+
+  isRead         Boolean  @default(false) // Flag to check if the notification is read
+
+  createdAt      DateTime @default(now()) // Timestamp for when the notification was created
+  updatedAt      DateTime @updatedAt      // Auto-update timestamp for when the notification was last modified
 }

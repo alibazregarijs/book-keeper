@@ -93,3 +93,57 @@ export async function deleteComment(commentId: number) {
     message: `Comment with ID ${commentId} has been deleted.`,
   };
 }
+
+export async function createNotification(
+  userId: number,
+  userGetReplyId: number,
+  bookId: number,
+  isRead: boolean
+) {
+  try {
+    // Create the notification
+    const createdNotification = await prisma.notification.create({
+      data: {
+        userId: userId,
+        userGetReplyId: userGetReplyId,
+        bookId: bookId,
+        isRead: isRead,
+      },
+    });
+
+    return createdNotification;
+  } catch (error) {
+    console.error("Error creating notification:");
+    throw error; // Rethrow the error if needed for higher-level handling
+  }
+}
+
+export async function getUserNotifications(userGetReplyId: number) {
+  console.log(userGetReplyId, "userGetReplyId");
+  const notifications = await prisma.notification.findMany({
+    where: {
+      userGetReplyId: userGetReplyId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      userGetReply: {
+        select: {
+          id: true,         // Example: Select only the ID
+          name: true,       // Select name
+        },
+      },
+      user: {
+        select: {
+          id: true,         // Select ID
+          name: true,       // Select name
+          avatar: true,     // Select avatar
+        },
+      },
+      
+    },
+  });
+
+  return notifications;
+}

@@ -34,6 +34,7 @@ const Hero = async () => {
               <Button variant={"secondary"}>
                 Get Into Fantasy World of Book
               </Button>
+           
             </Link>
           </div>
         </div>

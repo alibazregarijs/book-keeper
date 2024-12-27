@@ -24,10 +24,11 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Fetch the user from the database
-
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
+
+        console.log(user, "userra");
 
         if (!user) {
           throw new Error("User not found");
@@ -42,7 +43,6 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Return user details on successful login
-
         return {
           id: user.id.toString(),
           name: user.name,
@@ -63,7 +63,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: any }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id; // Add user id to the JWT token
         token.email = user.email;
         token.name = user.name;
         token.avatar = user.avatar;
@@ -72,16 +72,12 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }: { session: any; token: JWT }) {
       if (token) {
-        session.user.id = token.id;
+        session.user.id = token.id; // Add user id to the session
         session.user.email = token.email;
         session.user.name = token.name;
         session.user.avatar = token.avatar;
       }
       return session;
     },
-    // async redirect({ url, baseUrl }) {
-    //   // Always redirect users to `/pages/home` after sign-in
-    //   return `${baseUrl}/`;
-    // },
   },
 };

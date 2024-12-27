@@ -143,3 +143,122 @@ export async function getLastCommentId() {
     throw new Error("Failed to fetch last comment id");
   }
 }
+
+export async function getBookById({userId, bookId}:{userId:number,bookId:number}) {
+  try {
+    // Fetch the specific book by its ID with nested comments and replies
+    const book = await prisma.book.findUnique({
+      where: {
+        id: bookId, // Use 'id' to filter the book
+      },
+      include: {
+        savedBy: {
+          select: { userId: true, isSaved: true },
+        },
+        comments: {
+          select: {
+            id: true,
+            isReply: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+            userId: true,
+            user: {
+              select: { name: true, avatar: true, id: true },
+            },
+            replies: {
+              select: {
+                id: true,
+                isReply: true,
+                content: true,
+                createdAt: true,
+                updatedAt: true,
+                userId: true,
+                user: {
+                  select: { name: true, avatar: true, id: true },
+                },
+                replies: {
+                  select: {
+                    id: true,
+                    isReply: true,
+                    content: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    userId: true,
+                    user: {
+                      select: { name: true, avatar: true, id: true },
+                    },
+                    replies: {
+                      select: {
+                        id: true,
+                        isReply: true,
+                        content: true,
+                        createdAt: true,
+                        updatedAt: true,
+                        userId: true,
+                        user: {
+                          select: { name: true, avatar: true, id: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    });
+
+    if (!book) {
+      throw new Error("Book not found");
+    }
+
+    // Fetch views data grouped by bookId
+    const views = await prisma.bookViews.groupBy({
+      by: ["bookId"],
+      _sum: {
+        views: true,
+      },
+    });
+
+    // Fetch like counts grouped by bookId and userId
+    const likes = await prisma.bookLike.groupBy({
+      by: ["bookId", "userId"],
+      _sum: {
+        countOfLike: true,
+      },
+    });
+
+    // Create lookup maps for views and likes
+    const viewsMap = views.reduce((acc, view) => {
+      acc[view.bookId] = view._sum.views || 0;
+      return acc;
+    }, {} as Record<number, number>);
+
+    const likesMap = likes.reduce((acc, like) => {
+      if (!acc[like.bookId]) acc[like.bookId] = {};
+      acc[like.bookId][like.userId] = like._sum.countOfLike || 0;
+      return acc;
+    }, {} as Record<number, Record<number, number>>);
+
+    // Map book with additional details
+    const bookWithViewsAndSaveStatus = {
+      ...book,
+      totalViews: viewsMap[book.id] || 0,
+      isSavedByUser:
+        userId
+          ? book.savedBy.some((item) => item.userId === userId && item.isSaved)
+          : false,
+      quantityOfLike: userId ? likesMap[book.id]?.[userId] || 0 : 0,
+      likesCount: Object.keys(likesMap[book.id] || {}).length, // Count unique userId's for likes
+      savedCount: book.savedBy.length,
+    };
+
+    return bookWithViewsAndSaveStatus; // Return the book with additional details
+  } catch (error) {
+    console.error("Error fetching book by id:", error);
+    throw new Error("Failed to fetch book by id.");
+  }
+}

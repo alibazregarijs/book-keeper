@@ -2,16 +2,16 @@ import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createComment } from "./action";
-import { getLastCommentId } from "../book/action";
+import { createNotification } from "./action";
 
 export const FormComment = ({
   id,
   setNewComment,
-
   newComment,
   bookId,
   userId,
   onAddComment,
+  theUserAddBook,
 }: {
   setNewComment: React.Dispatch<React.SetStateAction<string>>;
   id: number;
@@ -19,14 +19,16 @@ export const FormComment = ({
   bookId: string;
   userId: string;
   onAddComment: (content: string) => void; // Function to handle adding a new comment
+  theUserAddBook: number;
 }) => {
-  console.log(id, "iddd in for comment");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
       onAddComment(newComment); // Call the handler from props
       setNewComment(""); // Clear the input field
       createComment(id, bookId, userId, newComment);
+      createNotification(Number(userId), theUserAddBook, Number(bookId), false);
     }
   };
 

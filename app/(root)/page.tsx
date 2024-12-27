@@ -4,6 +4,7 @@ import Hero from "@/components/hero/Hero";
 import "@/app/(root)/globals.css";
 import ClientSessionProvider from "./signup/ClientSessionProvider";
 import Book from "./book/page";
+import { getServerSession } from "next-auth";
 
 const page = async ({
   searchParams,
@@ -11,6 +12,7 @@ const page = async ({
   searchParams: Promise<{ query?: string }>;
 }) => {
   const query = (await searchParams).query;
+
 
   return (
     <div>
