@@ -151,6 +151,7 @@ export default function CommentSection({
             setNewReply={setNewReply}
             newComment={newReply}
             parentCommentId={comment.id}
+            theUserAddBook={comment.user.id}
             userId={userId}
             bookId={bookId}
             onAddReply={() => {

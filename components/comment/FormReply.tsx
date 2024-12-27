@@ -2,6 +2,7 @@ import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createReply } from "./action";
+import { createNotification } from "./action";
 
 export const FormReply = ({
   id, // is last id of comment
@@ -11,6 +12,7 @@ export const FormReply = ({
   userId,
   bookId,
   onAddReply, // Callback to update parent state
+  theUserAddBook
 }: {
   id: number;
   setNewReply: React.Dispatch<React.SetStateAction<string>>;
@@ -24,6 +26,7 @@ export const FormReply = ({
     replyContent: string,
     isReply: boolean
   ) => void;
+  theUserAddBook: number;
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +34,7 @@ export const FormReply = ({
       onAddReply(parentCommentId, newComment.trim(), true); // Update the parent comment with the reply
       setNewReply(""); // Clear the reply input
       createReply(id, parentCommentId, newComment.trim(), userId, bookId, true);
+      createNotification(Number(userId), Number(theUserAddBook), Number(bookId), false);
     }
   };
 
