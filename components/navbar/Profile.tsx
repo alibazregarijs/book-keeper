@@ -15,6 +15,9 @@ import { Notification } from "iconsax-react";
 import { CloseCircle } from "iconsax-react";
 import { getUserNotifications } from "../comment/action";
 import Link from "next/link";
+import { useSeeCommentsSelector } from "@/app/redux/store/hooks";
+import { useSeeCommentsDispatch } from "@/app/redux/store/hooks";
+import { setSeeCommentsQuery } from "@/app/redux/store/SeeCommentsSlice";
 
 export type notificationsProps = {
   id: number;
@@ -39,22 +42,24 @@ export function Profile({ session }: { session: Session }) {
   const [userNotifications, setUserNotifications] = useState<
     notificationsProps[]
   >([]);
+  const dispatch = useSeeCommentsDispatch();
   const userId = session?.user?.id;
-  console.log(userId, "hhere");
+
+  const isShowComment = useSeeCommentsSelector(
+    (state) => state.seeCommentsSlice.showComments
+  );
 
   useEffect(() => {
+    if (!userId) return;
+
     const userNotifications = async () => {
       const notifications = await getUserNotifications(Number(userId));
+      console.log(notifications, "notifications");
       setUserNotifications(notifications);
+      dispatch(setSeeCommentsQuery({ showComments: false }));
     };
     userNotifications();
-  }, [session.user.id]);
-  
-  const handleGoingToComment = (commentId: number) => {
-    const test = document.getElementById(commentId.toString());
-    console.log(test, "test");
-
-  }
+  }, [userId, isShowComment]);
 
   return (
     <>
@@ -101,7 +106,6 @@ export function Profile({ session }: { session: Session }) {
                     <Link
                       href={`/book/${notification.bookId}/#${notification.id}`}
                       className="text-blue-500 text-sm"
-                      onClick={()=>handleGoingToComment(notification.id)}
                     >
                       Go there
                     </Link>

@@ -72,6 +72,8 @@ export async function deleteComment(commentId: number) {
     },
   });
 
+
+
   if (!comment) {
     console.log(`Comment with ID ${commentId} does not exist.`);
     return {
@@ -87,6 +89,12 @@ export async function deleteComment(commentId: number) {
     },
   });
 
+  await prisma.notification.delete({
+    where: {
+      id: commentId,
+    },
+  })
+
   console.log(`Comment with ID ${commentId} has been deleted.`);
   return {
     success: true,
@@ -98,12 +106,14 @@ export async function createNotification(
   userId: number,
   userGetReplyId: number,
   bookId: number,
-  isRead: boolean
+  isRead: boolean,
+  id: number
 ) {
   try {
     // Create the notification
     const createdNotification = await prisma.notification.create({
       data: {
+        id: id + 1,
         userId: userId,
         userGetReplyId: userGetReplyId,
         bookId: bookId,
@@ -130,18 +140,17 @@ export async function getUserNotifications(userGetReplyId: number) {
     include: {
       userGetReply: {
         select: {
-          id: true,         // Example: Select only the ID
-          name: true,       // Select name
+          id: true, // Example: Select only the ID
+          name: true, // Select name
         },
       },
       user: {
         select: {
-          id: true,         // Select ID
-          name: true,       // Select name
-          avatar: true,     // Select avatar
+          id: true, // Select ID
+          name: true, // Select name
+          avatar: true, // Select avatar
         },
       },
-      
     },
   });
 

@@ -9,6 +9,7 @@ export const handleDelete = (commentId: number, comments: Comment[]) => {
     .map((comment) => {
       if (comment.id === commentId) {
         deleteComment(commentId);
+        
         return null;
       }
 
