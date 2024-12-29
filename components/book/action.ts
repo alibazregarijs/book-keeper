@@ -12,8 +12,6 @@ export async function likeAction({
   bookId: number;
   countOfLike: number;
 }) {
-
-
   // Upsert to either create or update the like record for the user and book
   const likeRecord = await prisma.bookLike.upsert({
     where: {
@@ -37,7 +35,6 @@ export async function likeAction({
   return likeRecord; // Optionally, return the updated or created like record
 }
 
-
 export async function saveBookAction({
   bookId,
   userId,
@@ -47,8 +44,6 @@ export async function saveBookAction({
   userId: number;
   isSaved: boolean;
 }) {
-
-
   const saveBookRecord = await prisma.saveBook.upsert({
     where: {
       userId_bookId: {
@@ -77,7 +72,7 @@ export async function IncreaseViews({
   userId: number;
 }) {
   try {
-    console.log(userId,bookId,"in increase views");
+    console.log(userId, bookId, "in increase views");
     // Check if the user has already viewed the book
     const existingView = await prisma.bookViews.findUnique({
       where: {
@@ -103,14 +98,11 @@ export async function IncreaseViews({
     // If a view already exists, do nothing
 
     return existingView;
-
   } catch (error) {
     console.error("Error saving unique page view:", error);
     throw new Error("Failed to save unique page view");
   }
-
 }
-
 
 export async function getTotalViews(bookId: number): Promise<number> {
   try {
@@ -144,7 +136,13 @@ export async function getLastCommentId() {
   }
 }
 
-export async function getBookById({userId, bookId}:{userId:number,bookId:number}) {
+export async function getBookById({
+  userId,
+  bookId,
+}: {
+  userId: number;
+  bookId: number;
+}) {
   try {
     // Fetch the specific book by its ID with nested comments and replies
     const book = await prisma.book.findUnique({
@@ -247,10 +245,9 @@ export async function getBookById({userId, bookId}:{userId:number,bookId:number}
     const bookWithViewsAndSaveStatus = {
       ...book,
       totalViews: viewsMap[book.id] || 0,
-      isSavedByUser:
-        userId
-          ? book.savedBy.some((item) => item.userId === userId && item.isSaved)
-          : false,
+      isSavedByUser: userId
+        ? book.savedBy.some((item) => item.userId === userId && item.isSaved)
+        : false,
       quantityOfLike: userId ? likesMap[book.id]?.[userId] || 0 : 0,
       likesCount: Object.keys(likesMap[book.id] || {}).length, // Count unique userId's for likes
       savedCount: book.savedBy.length,
@@ -260,5 +257,30 @@ export async function getBookById({userId, bookId}:{userId:number,bookId:number}
   } catch (error) {
     console.error("Error fetching book by id:", error);
     throw new Error("Failed to fetch book by id.");
+  }
+}
+
+export async function getAllBooks() {
+  try {
+    const books = await prisma.book.findMany();
+    return books;
+  } catch (error) {
+    console.error("Error fetching all books:", error);
+    throw new Error("Failed to fetch all books.");
+  }
+}
+
+export async function getbook(id: number) {
+  try {
+    const book = await prisma.book.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    return book;
+  } catch (error) {
+    console.error("Error fetching book:", error);
+    throw new Error("Failed to fetch book.");
   }
 }

@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useSeeCommentsSelector } from "@/app/redux/store/hooks";
 import { useSeeCommentsDispatch } from "@/app/redux/store/hooks";
 import { setSeeCommentsQuery } from "@/app/redux/store/SeeCommentsSlice";
+import { markNotificationAsRead } from "../comment/action";
 
 export type notificationsProps = {
   id: number;
@@ -51,10 +52,9 @@ export function Profile({ session }: { session: Session }) {
 
   useEffect(() => {
     if (!userId) return;
-
     const userNotifications = async () => {
       const notifications = await getUserNotifications(Number(userId));
-      console.log(notifications, "notifications");
+      console.log(notifications,"notif");
       setUserNotifications(notifications);
       dispatch(setSeeCommentsQuery({ showComments: false }));
     };
@@ -106,6 +106,7 @@ export function Profile({ session }: { session: Session }) {
                     <Link
                       href={`/book/${notification.bookId}/#${notification.id}`}
                       className="text-blue-500 text-sm"
+                      onClick={() => markNotificationAsRead(notification.id)}
                     >
                       Go there
                     </Link>
@@ -123,7 +124,7 @@ export function Profile({ session }: { session: Session }) {
           <PopoverTrigger asChild>
             <div className="hidden" />
           </PopoverTrigger>
-          <PopoverContent className="mt-[3rem] p-4 z-10">
+          <PopoverContent className="mt-[3rem] p-4 z-10" onMouseLeave={() => setIsOpen(false)}>
             <div className="grid gap-4">
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Dimensions</h4>
@@ -135,9 +136,11 @@ export function Profile({ session }: { session: Session }) {
                   className="flex relative items-center cursor-pointer"
                 >
                   <Notification size="26" color="#000" />
-                  <div className="absolute -top-1 left-3 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs font-medium text-white">
-                    4
-                  </div>
+                  {userNotifications.length > 0 && (
+                    <div className="absolute -top-1 left-3.5 flex h-3 w-3 items-center justify-center rounded-full bg-red-600 text-xs font-medium text-white">
+                    
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

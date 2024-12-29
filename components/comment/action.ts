@@ -1,6 +1,8 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 export async function createComment(
   id: number,
@@ -72,8 +74,6 @@ export async function deleteComment(commentId: number) {
     },
   });
 
-
-
   if (!comment) {
     console.log(`Comment with ID ${commentId} does not exist.`);
     return {
@@ -93,7 +93,7 @@ export async function deleteComment(commentId: number) {
     where: {
       id: commentId,
     },
-  })
+  });
 
   console.log(`Comment with ID ${commentId} has been deleted.`);
   return {
@@ -120,7 +120,7 @@ export async function createNotification(
         isRead: isRead,
       },
     });
-
+    revalidateTag("getUserNotifications");
     return createdNotification;
   } catch (error) {
     console.error("Error creating notification:");
@@ -128,31 +128,77 @@ export async function createNotification(
   }
 }
 
-export async function getUserNotifications(userGetReplyId: number) {
-  console.log(userGetReplyId, "userGetReplyId");
-  const notifications = await prisma.notification.findMany({
+export const getUserNotifications = unstable_cache(
+  async (userGetReplyId: number) => {
+    console.log(
+      `[getUserNotifications] Fetching notifications from DB for user ID: ${userGetReplyId}`
+    );
+
+    const notifications = await prisma.notification.findMany({
+      where: {
+        userGetReplyId: userGetReplyId,
+        isRead: false,
+      },
+      take: 50,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        userGetReply: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    return notifications;
+  },
+  ["getUserNotifications"], // Unique cache key for this function
+  {
+    tags: ["getUserNotifications"],
+  }
+);
+
+export async function markNotificationAsRead(notificationId: number) {
+  // Check if the notification exists
+  const notification = await prisma.notification.findUnique({
     where: {
-      userGetReplyId: userGetReplyId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      userGetReply: {
-        select: {
-          id: true, // Example: Select only the ID
-          name: true, // Select name
-        },
-      },
-      user: {
-        select: {
-          id: true, // Select ID
-          name: true, // Select name
-          avatar: true, // Select avatar
-        },
-      },
+      id: notificationId,
     },
   });
 
-  return notifications;
+  if (!notification) {
+    console.log(`Notification with ID ${notificationId} does not exist.`);
+    return {
+      success: false,
+      message: `Notification with ID ${notificationId} does not exist.`,
+    };
+  }
+
+  // If the notification exists, mark it as read
+  await prisma.notification.update({
+    where: {
+      id: notificationId,
+    },
+    data: {
+      isRead: true,
+    },
+  });
+
+  console.log(
+    `Notification with ID ${notificationId} has been marked as read.`
+  );
+  return {
+    success: true,
+    message: `Notification with ID ${notificationId} has been marked as read.`,
+  };
 }
