@@ -84,6 +84,7 @@ export const getExploreBooks = async ({ userId }: { userId?: number }) => {
           select: {
             id: true,
             isReply: true,
+            parentId: true,
             content: true,
             createdAt: true,
             updatedAt: true,

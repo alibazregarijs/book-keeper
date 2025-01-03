@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useLayoutEffect } from "react";
 import Image from "next/image";
 import { DirectRight } from "iconsax-react";
 import FormReply from "./FormReply";
@@ -6,10 +6,12 @@ import { FormComment } from "./FormComment";
 import { Session } from "next-auth";
 import { handleDelete, addNewComment, addReplyToComment } from "./utils";
 import { getLastCommentId } from "../book/action";
+import { deleteNotifications } from "./action";
 
 export interface Comment {
   id: number;
   isReply: boolean;
+  parentId: number | null;
   user: {
     name: string;
     avatar?: string;
@@ -62,19 +64,48 @@ export default function CommentSection({
     setReplyState({ [commentId]: !replyState[commentId] });
   };
 
-  console.log(theUserAddBook, "theUserAddBook");
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     const fetchLastCommentId = async () => {
       const commentId = await getLastCommentId();
+      console.log(commentId, "commentId in CommentSection");
       setLastCommentIdState(commentId || 0);
     };
     fetchLastCommentId();
   }, [comments]);
 
   const handleDeleteComment = async (commentId: number) => {
+    const getNestedReplyIds = (
+      currentId: number,
+      comments: Comment[]
+    ): number[] => {
+      const result: number[] = [];
+
+      comments.forEach((comment: Comment) => {
+        if (comment.parentId === currentId) {
+          // Add the current reply's ID
+          result.push(comment.id);
+          // Recursively fetch nested reply IDs
+          result.push(...getNestedReplyIds(comment.id, comments));
+        }
+
+        // Check nested replies in the comment's `replies` array
+        if (comment.replies && comment.replies.length > 0) {
+          result.push(...getNestedReplyIds(currentId, comment.replies));
+        }
+      });
+
+      return result;
+    };
+
+    // Usage
+    const notifIdDeletion = [
+      commentId,
+      ...getNestedReplyIds(commentId, comments),
+    ];
+
     try {
       const updatedComments = handleDelete(commentId, comments);
+      deleteNotifications(notifIdDeletion);
       setComments(updatedComments);
     } catch (error) {
       console.error("Error fetching last comment id:", error);
@@ -103,7 +134,6 @@ export default function CommentSection({
     },
     [lastCommentIdState, session]
   );
-
   const renderComments = (comments: Comment[]) => {
     return comments.map((comment, index) => (
       <div

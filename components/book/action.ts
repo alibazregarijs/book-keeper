@@ -72,7 +72,6 @@ export async function IncreaseViews({
   userId: number;
 }) {
   try {
-    console.log(userId, bookId, "in increase views");
     // Check if the user has already viewed the book
     const existingView = await prisma.bookViews.findUnique({
       where: {

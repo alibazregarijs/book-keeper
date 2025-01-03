@@ -54,12 +54,11 @@ export function Profile({ session }: { session: Session }) {
     if (!userId) return;
     const userNotifications = async () => {
       const notifications = await getUserNotifications(Number(userId));
-      console.log(notifications,"notif");
       setUserNotifications(notifications);
       dispatch(setSeeCommentsQuery({ showComments: false }));
     };
     userNotifications();
-  }, [userId, isShowComment]);
+  }, [userId, isShowComment,isSidebarOpen]);
 
   return (
     <>

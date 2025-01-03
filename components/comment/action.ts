@@ -10,7 +10,8 @@ export async function createComment(
   userId: string | number,
   content: string
 ) {
-  console.log(id, "id in action");
+  
+  console.log(id, "id in actionnnnnnnnnnnnn");
   const createdComment = await prisma.comment.create({
     data: {
       id: id + 1,
@@ -40,10 +41,10 @@ export async function createReply(
     });
 
     if (!parentComment) {
-      console.log(parentCommentId, "parent comment id");
       throw new Error("Parent comment does not exist.");
     }
 
+    console.log(id, "id in actionnnnnnnnnnnnn");
     // Create the reply
     const createdReply = await prisma.comment.create({
       data: {
@@ -65,9 +66,6 @@ export async function createReply(
   }
 }
 export async function deleteComment(commentId: number) {
-  console.log(commentId, "comment id in delete");
-
-  // Check if the comment exists
   const comment = await prisma.comment.findUnique({
     where: {
       id: commentId,
@@ -84,12 +82,6 @@ export async function deleteComment(commentId: number) {
 
   // If the comment exists, delete it
   await prisma.comment.delete({
-    where: {
-      id: commentId,
-    },
-  });
-
-  await prisma.notification.delete({
     where: {
       id: commentId,
     },
@@ -201,4 +193,28 @@ export async function markNotificationAsRead(notificationId: number) {
     success: true,
     message: `Notification with ID ${notificationId} has been marked as read.`,
   };
+}
+
+export async function deleteNotifications(notificationIds: number[]) {
+  console.log(notificationIds, "here serverrrrrrrrrrrr");
+  try {
+    // Delete the notifications
+    await prisma.notification.deleteMany({
+      where: {
+        id: {
+          in: notificationIds,
+        },
+      },
+    });
+
+    console.log(`Notifications with IDs ${notificationIds} have been deleted.`);
+    revalidateTag("getUserNotifications");
+    return {
+      success: true,
+      message: `Notifications with IDs ${notificationIds} have been deleted.`,
+    };
+  } catch (error) {
+    console.error("Error deleting notifications:");
+    throw error; // Rethrow the error if needed for higher-level handling
+  }
 }

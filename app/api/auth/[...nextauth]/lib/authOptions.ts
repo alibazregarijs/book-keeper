@@ -28,8 +28,6 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        console.log(user, "userra");
-
         if (!user) {
           throw new Error("User not found");
         }

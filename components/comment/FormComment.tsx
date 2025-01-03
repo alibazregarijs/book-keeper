@@ -5,6 +5,7 @@ import { createComment } from "./action";
 import { createNotification } from "./action";
 import { useSeeCommentsDispatch } from "@/app/redux/store/hooks";
 import { setSeeCommentsQuery } from "@/app/redux/store/SeeCommentsSlice";
+import { useState } from "react";
 
 export const FormComment = ({
   id,
@@ -23,20 +24,25 @@ export const FormComment = ({
   onAddComment: (content: string) => void; // Function to handle adding a new comment
   theUserAddBook: number;
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useSeeCommentsDispatch();
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    setIsSubmitting(true);
     e.preventDefault();
     if (newComment.trim()) {
       onAddComment(newComment); // Call the handler from props
       setNewComment(""); // Clear the input field
       createComment(id, bookId, userId, newComment);
-      createNotification(
+      const notification = await createNotification(
         Number(userId),
         theUserAddBook,
         Number(bookId),
         false,
         id
       );
+      if (notification) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -52,8 +58,9 @@ export const FormComment = ({
         onClick={() => dispatch(setSeeCommentsQuery({ showComments: true }))}
         type="submit"
         className="bg-black text-white hover:bg-gray-800"
+        disabled={isSubmitting}
       >
-        Reply
+        {isSubmitting ? "Submitting..." : "Reply"}
       </Button>
     </form>
   );

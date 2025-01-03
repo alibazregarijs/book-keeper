@@ -34,6 +34,7 @@ export const addNewComment = async (
     const newCommentObject: Comment = {
       id: lastCommentIdState! + 1,
       isReply: false,
+      parentId: null,
       user: {
         name: session?.user?.name || "Current User",
         avatar: session?.user?.image || "/default-avatar.png",
@@ -59,6 +60,7 @@ export const addReplyToComment = async (
     const newReply: Comment = {
       id: lastCommentIdState! + 1, // Increment the ID
       isReply,
+      parentId: parentCommentId,
       user: {
         name: session?.user?.name || "Current User",
         avatar: session?.user?.image || "/default-avatar.png",
